@@ -1,0 +1,278 @@
+.edit {
+  padding-top: 90px;
+  padding-bottom: 60px;
+  min-height: 100vh;
+}
+.edit--loading,
+.edit--error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: var(--white);
+}
+.edit__container { max-width: 980px; }
+
+/* Header */
+.edit__header { margin-bottom: 36px; }
+.edit__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+.edit__back:hover { color: var(--pink); }
+.edit__title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.edit__sub { color: var(--text-muted); font-size: 0.95rem; }
+.edit__sub strong { color: var(--white); }
+
+/* Layout */
+.edit__layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Sidebar */
+.edit__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 90px;
+}
+.edit__cover-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+}
+.edit__cover-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pink);
+}
+.edit__cover-placeholder {
+  width: 100%;
+  aspect-ratio: 3/4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  background: linear-gradient(135deg, var(--charcoal), #1a1a24);
+  border-radius: var(--radius-sm);
+}
+.edit__cover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.edit__change-cover-btn {
+  width: 100%;
+  justify-content: center;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+}
+.edit__book-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.edit__read-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Form */
+.edit__form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+}
+.edit__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.edit__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.edit__field--full { grid-column: 1 / -1; }
+
+.edit__field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--pink);
+}
+.edit__field input,
+.edit__field select,
+.edit__field textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  color: var(--white);
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+}
+.edit__field input:focus,
+.edit__field select:focus,
+.edit__field textarea:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px var(--pink-glow);
+}
+.edit__field select option { background: var(--charcoal); }
+
+/* Price */
+.edit__price-wrap {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.edit__price-wrap:focus-within {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px var(--pink-glow);
+}
+.edit__price-symbol {
+  padding: 12px 14px;
+  font-weight: 700;
+  color: var(--pink);
+  font-size: 1rem;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  user-select: none;
+}
+.edit__price-input {
+  flex: 1;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 12px 14px;
+  color: var(--white);
+  font-size: 0.95rem;
+  outline: none;
+  font-family: inherit;
+}
+.edit__price-input::-webkit-inner-spin-button { opacity: 0.4; }
+
+/* Status */
+.edit__error  { color: #ff6b6b; font-size: 0.9rem; }
+.edit__success { color: #6bffb8; font-size: 0.9rem; }
+
+/* Actions */
+.edit__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.edit__delete-btn {
+  margin-left: auto;
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  color: #ff6b6b;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s;
+}
+.edit__delete-btn:hover {
+  background: rgba(255, 80, 80, 0.2);
+  border-color: rgba(255, 80, 80, 0.5);
+}
+
+/* Delete Dialog */
+.edit__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.edit__dialog {
+  max-width: 440px;
+  width: 100%;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeUp 0.25s ease both;
+}
+.edit__dialog h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.edit__dialog p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; }
+.edit__dialog-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.edit__confirm-delete {
+  background: rgba(255,80,80,0.15);
+  border: 1px solid rgba(255,80,80,0.4);
+  color: #ff6b6b;
+  padding: 11px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.edit__confirm-delete:hover { background: rgba(255,80,80,0.28); }
+
+/* Spinner (reuse from Reader) */
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,143,199,0.2);
+  border-top-color: var(--pink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.spinner.large { width: 56px; height: 56px; border-width: 4px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .edit__layout { grid-template-columns: 1fr; }
+  .edit__sidebar { position: static; flex-direction: row; align-items: flex-start; flex-wrap: wrap; }
+  .edit__cover-card { flex-direction: row; flex-wrap: wrap; }
+  .edit__cover-img, .edit__cover-placeholder { width: 120px; aspect-ratio: 3/4; flex-shrink: 0; }
+  .edit__fields { grid-template-columns: 1fr; }
+  .edit__delete-btn { margin-left: 0; }
+}
+@media (max-width: 480px) {
+  .edit__form { padding: 20px; }
+  .edit__dialog { padding: 24px; }
+}

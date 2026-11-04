@@ -1,0 +1,256 @@
+/* ── Reader Layout ───────────────────────────────────────────── */
+.reader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background 0.4s;
+  user-select: none;
+}
+.reader.dark  { background: #0a0a0c; }
+.reader.light { background: #e8e0d8; }
+.reader.fullscreen { background: #000; }
+
+/* Loading / Error states */
+.reader--loading,
+.reader--error {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: var(--black);
+  color: var(--white);
+}
+.reader__error-box {
+  padding: 48px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+/* ── Top Bar ─────────────────────────────────────────────────── */
+.reader__topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: rgba(13,13,15,0.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,143,199,0.1);
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+}
+.reader__topbar.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.reader__back { font-size: 0.88rem; padding: 8px 16px; }
+.reader__book-title {
+  flex: 1;
+  text-align: center;
+  font-size: 1.1rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.reader__topbar-actions {
+  display: flex;
+  gap: 10px;
+}
+.reader__topbar-actions button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--white);
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.reader__topbar-actions button:hover { background: var(--pink-glow); }
+
+/* ── Stage ───────────────────────────────────────────────────── */
+.reader__stage {
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Flip Book ───────────────────────────────────────────────── */
+.flip-book { box-shadow: 0 20px 80px rgba(0,0,0,0.7); }
+
+/* Individual page */
+.flip-page {
+  position: relative;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+.reader.light .flip-page { background: #fdf8f0; }
+.flip-page__img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.flip-page__blank {
+  width: 100%; height: 100%;
+  background: #fff;
+}
+.flip-page__loading {
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #f8f8f8;
+  color: #aaa;
+  font-size: 0.85rem;
+}
+.flip-page__num {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 0.72rem;
+  color: rgba(0,0,0,0.3);
+  font-family: 'Poppins', sans-serif;
+  pointer-events: none;
+}
+.reader.light .flip-page__num { color: rgba(0,0,0,0.25); }
+
+/* ── Bottom Controls ─────────────────────────────────────────── */
+.reader__controls {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(13,13,15,0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,143,199,0.18);
+  border-radius: 50px;
+  padding: 10px 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.reader__controls.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reader__ctrl-btn {
+  background: rgba(255,143,199,0.1);
+  border: 1px solid rgba(255,143,199,0.25);
+  color: var(--white);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.reader__ctrl-btn:hover { background: rgba(255,143,199,0.22); }
+
+.reader__jump {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.reader__page-info {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.reader__jump-input {
+  width: 64px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  color: var(--white);
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  text-align: center;
+  outline: none;
+}
+.reader__jump-input::-webkit-inner-spin-button { display: none; }
+.reader__jump-input:focus { border-color: var(--pink); }
+.reader__jump-btn {
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: var(--black);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 50px;
+  transition: opacity 0.2s;
+}
+.reader__jump-btn:hover { opacity: 0.85; }
+
+.reader__zoom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.reader__zoom button {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: var(--white);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.reader__zoom button:hover { background: rgba(255,143,199,0.18); }
+.reader__zoom span { min-width: 44px; text-align: center; }
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,143,199,0.2);
+  border-top-color: var(--pink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.spinner.large { width: 56px; height: 56px; border-width: 4px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Light mode overrides ────────────────────────────────────── */
+.reader.light .reader__topbar,
+.reader.light .reader__controls {
+  background: rgba(240,235,228,0.92);
+  border-color: rgba(180,120,160,0.2);
+  color: #333;
+}
+.reader.light .reader__topbar-actions button,
+.reader.light .reader__ctrl-btn,
+.reader.light .reader__zoom button {
+  color: #333;
+  border-color: rgba(0,0,0,0.15);
+}
+.reader.light .reader__page-info,
+.reader.light .reader__zoom { color: #666; }
+
+@media (max-width: 600px) {
+  .reader__controls { padding: 8px 14px; gap: 8px; bottom: 12px; }
+  .reader__zoom span { display: none; }
+}
