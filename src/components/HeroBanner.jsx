@@ -95,9 +95,9 @@ export default function HeroBanner() {
         <div className="hero__actions">
           <a href="#library" className="btn btn-primary">Browse Library</a>
           {isAdmin ? (
-            <Link to="/upload" className="btn btn-outline">+ Upload PDF</Link>
+            <Link to="/admin" className="btn btn-outline">⚡ Open Admin Panel</Link>
           ) : (
-            <a href="#library" className="btn btn-outline">Explore Guides</a>
+            <a href="#library" className="btn btn-outline">Start Reading</a>
           )}
         </div>
       </div>

@@ -79,7 +79,7 @@ export default function Home() {
               <p className="home__sub">{books.length} book{books.length !== 1 ? "s" : ""} in collection</p>
             </div>
             {isAdmin && (
-              <Link to="/upload" className="btn btn-primary">+ Upload Book</Link>
+              <Link to="/admin" className="btn btn-primary">⚡ Admin Panel</Link>
             )}
           </div>
 
@@ -112,7 +112,7 @@ export default function Home() {
                 <h3 className="script">No books yet!</h3>
                 <p>Welcome to FitWithMaya! Get ready to explore workout programs and meal plans.</p>
                 {isAdmin ? (
-                  <Link to="/upload" className="btn btn-primary">Upload First E-Book</Link>
+                  <Link to="/admin" className="btn btn-primary">⚡ Go to Admin Panel</Link>
                 ) : (
                   <p style={{ color: "var(--pink)", fontSize: "0.95rem" }}>
                     Books will appear here once published by Maya.

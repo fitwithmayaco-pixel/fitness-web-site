@@ -309,13 +309,6 @@ export default function Admin() {
           >
             ➕ Upload New PDF
           </button>
-          <button
-            type="button"
-            className={`admin__tab ${activeTab === "roles" ? "active" : ""}`}
-            onClick={() => setActiveTab("roles")}
-          >
-            👥 Role Management (Supabase)
-          </button>
         </div>
 
         {/* ── TAB 1: MANAGE BOOKS ── */}
@@ -581,67 +574,6 @@ export default function Admin() {
               </button>
             </div>
           </form>
-        )}
-
-        {/* ── TAB 3: ROLES MANAGEMENT GUIDE ── */}
-        {activeTab === "roles" && (
-          <div className="admin__roles-card glass">
-            <h3 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "8px" }}>
-              👥 How to Set / Change User Roles in Supabase
-            </h3>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: "1.6" }}>
-              Har user ka role Supabase ke <strong><code>profiles</code></strong> table mein store hota hai. 
-              Aap kisi bhi user ko database mein jaakar <strong>'admin'</strong> bana sakte hain!
-            </p>
-
-            <div className="admin__roles-guide">
-              <div className="admin__roles-step">
-                <div className="admin__roles-step-num">1</div>
-                <div>
-                  <h4 style={{ fontWeight: 600, color: "#fff", marginBottom: "4px" }}>Supabase Dashboard Kholein</h4>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                    Apne browser mein <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" style={{ color: "var(--pink)", textDecoration: "underline" }}>supabase.com/dashboard</a> par jayein aur apna project select karein.
-                  </p>
-                </div>
-              </div>
-
-              <div className="admin__roles-step">
-                <div className="admin__roles-step-num">2</div>
-                <div>
-                  <h4 style={{ fontWeight: 600, color: "#fff", marginBottom: "4px" }}>Table Editor ➔ 'profiles' Table Mein Jayein</h4>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                    Left navigation menu mein <strong>Table Editor</strong> par click karein aur <strong><code>profiles</code></strong> table select karein. Wahan aapko saare registered users unke emails ke saath nazar aayenge.
-                  </p>
-                </div>
-              </div>
-
-              <div className="admin__roles-step">
-                <div className="admin__roles-step-num">3</div>
-                <div>
-                  <h4 style={{ fontWeight: 600, color: "#fff", marginBottom: "4px" }}>Role Column ko 'admin' Set Karein</h4>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                    Jis user ko admin banana hai, uski row ke <strong><code>role</code></strong> column par double-click karein, wahan <strong>admin</strong> type karein aur Save dabayein!
-                  </p>
-                </div>
-              </div>
-
-              <div className="admin__roles-step">
-                <div className="admin__roles-step-num">4</div>
-                <div>
-                  <h4 style={{ fontWeight: 600, color: "#fff", marginBottom: "4px" }}>Immediate Admin Privileges</h4>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                    Jaise hi woh user website par login karega (ya refresh karega), usko automatically <strong>👑 Admin Panel</strong> aur <strong>PDF upload & edit permissions</strong> mil jayengi!
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginTop: "24px", padding: "16px 20px", background: "rgba(255, 107, 156, 0.1)", borderRadius: "12px", border: "1px solid rgba(255, 107, 156, 0.25)" }}>
-              <p style={{ fontSize: "0.9rem", color: "var(--white)" }}>
-                💡 <strong>Current User Info:</strong> Email: <code>{user?.email}</code> | Database Role: <code>{userRole}</code> | Status: <strong style={{ color: isAdmin ? "#86efac" : "#fca5a5" }}>{isAdmin ? "Verified Administrator ✅" : "Standard User"}</strong>
-              </p>
-            </div>
-          </div>
         )}
 
       </div>
