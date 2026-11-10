@@ -41,7 +41,11 @@ export default function Navbar() {
           <ul className="navbar__links">
             <li><Link to="/" className={loc.pathname === "/" ? "active" : ""}>Home</Link></li>
             {isAdmin && (
-              <li><Link to="/upload" className={loc.pathname === "/upload" ? "active" : ""}>Upload</Link></li>
+              <li>
+                <Link to="/admin" className={loc.pathname.startsWith("/admin") ? "active" : ""}>
+                  ⚡ Admin Panel
+                </Link>
+              </li>
             )}
           </ul>
 
@@ -73,9 +77,9 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* CTA - Only shown for Admin */}
+            {/* CTA - For Admin show Admin Panel button */}
             {isAdmin && (
-              <Link to="/upload" className="btn btn-primary navbar__cta">+ Add Book</Link>
+              <Link to="/admin" className="btn btn-primary navbar__cta">⚡ Admin Panel</Link>
             )}
           </div>
 
@@ -92,7 +96,7 @@ export default function Navbar() {
         {/* Mobile menu */}
         <div className={`navbar__mobile${menuOpen ? " open" : ""}`}>
           <Link to="/">Home</Link>
-          {isAdmin && <Link to="/upload">Upload Books (Admin)</Link>}
+          {isAdmin && <Link to="/admin">⚡ Admin Panel (Upload & Manage)</Link>}
           {user ? (
             <div style={{ padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
