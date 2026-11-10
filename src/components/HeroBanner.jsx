@@ -9,31 +9,39 @@ import "./HeroBanner.css";
 const SLIDES = [
   {
     type: "video",
-    src: "/videos/workout-bg1.mp4",
+    src: "/videos/hero-slider-video.mp4",
     title: SITE.name,
-    tagline: "Stronger. Healthier. Happier. Real Workouts, Real Results ♡",
+    tagline: "Stronger. Healthier. Happier. Transform your body and lifestyle with Maya's proven workout guides and nutrition plans ♡",
     eyebrow: "Live The Fitness Lifestyle ♡",
+    badgeTitle: "Maya Fit • Live Trainer",
+    badgeSub: "🔥 Video Training & E-Books",
   },
   {
     type: "image",
     src: mayaPink,
-    title: "Train Smart.",
-    tagline: "Transform your body and mindset with proven workout routines & nutrition guides.",
+    title: "Train With Purpose.",
+    tagline: "Consistency creates champions. Access Maya's complete digital fitness collection anytime, anywhere.",
     eyebrow: "FitWithMaya ♡",
+    badgeTitle: "Strength & Shred Program",
+    badgeSub: "✨ Real Workouts, Real Results",
   },
   {
     type: "video",
-    src: "/videos/workout-bg2.mp4",
+    src: "/videos/workout-bg1.mp4",
     title: "Crush Your Goals.",
-    tagline: "Consistency is key. Access your personal digital fitness library anytime, anywhere.",
+    tagline: "Follow structured workout regimens and progressive routines tailored to get you in peak shape.",
     eyebrow: "Daily Motivation ♡",
+    badgeTitle: "Daily Fitness Sessions",
+    badgeSub: "⚡ Keep Showing Up Every Day",
   },
   {
     type: "image",
     src: mayaPurple,
-    title: "Elevate Your Routine.",
-    tagline: "Get stronger. Build confidence. Keep showing up for yourself every single day ♡",
+    title: "Elevate Your Mindset.",
+    tagline: "Build lasting strength, confidence, and discipline. Your personal fitness library awaits you.",
     eyebrow: "Strength & Wellness ♡",
+    badgeTitle: "Mindset & Wellness Routine",
+    badgeSub: "♡ Empowering Women Worldwide",
   },
 ];
 
@@ -47,7 +55,7 @@ export default function HeroBanner() {
 
   const resetTimer = useCallback(() => {
     clearInterval(timerRef.current);
-    timerRef.current = setInterval(next, 7000); // 7 seconds per slide
+    timerRef.current = setInterval(next, 7000);
   }, [next]);
 
   useEffect(() => {
@@ -60,46 +68,91 @@ export default function HeroBanner() {
 
   return (
     <section className="hero">
-      {/* Background media (Photos & Videos) */}
+      {/* Subtle ambient backdrop for atmospheric depth */}
       {SLIDES.map((s, i) =>
         s.type === "video" ? (
           <video
-            key={i}
+            key={`bg-${i}`}
             src={s.src}
             autoPlay
             muted
             loop
             playsInline
-            className={`hero__bg${i === current ? " active" : ""}`}
+            className={`hero__backdrop-media${i === current ? " active" : ""}`}
             aria-hidden="true"
           />
         ) : (
           <img
-            key={i}
+            key={`bg-${i}`}
             src={s.src}
             alt=""
-            className={`hero__bg${i === current ? " active" : ""}`}
+            className={`hero__backdrop-media${i === current ? " active" : ""}`}
             aria-hidden="true"
           />
         )
       )}
 
-      {/* Atmospheric dark pink gradient overlay */}
+      {/* Atmospheric dark gradient overlay */}
       <div className="hero__overlay" />
 
-      {/* Content */}
-      <div className="container hero__content page-enter" key={current}>
-        <span className="hero__eyebrow script">{slide.eyebrow}</span>
-        <h1 className="hero__title gradient-text">{slide.title}</h1>
-        <p className="hero__tagline">{slide.tagline}</p>
-        <div className="hero__actions">
-          <a href="#library" className="btn btn-primary">Browse Library</a>
-          {isAdmin ? (
-            <Link to="/admin" className="btn btn-outline">⚡ Open Admin Panel</Link>
-          ) : (
-            <a href="#library" className="btn btn-outline">Start Reading</a>
-          )}
+      {/* ── Main Two-Column Content: Left Text, Right Girl/Video ── */}
+      <div className="container hero__inner">
+
+        {/* ── LEFT: Texts ── */}
+        <div className="hero__left page-enter" key={`text-${current}`}>
+          <span className="hero__eyebrow script">{slide.eyebrow}</span>
+          <h1 className="hero__title gradient-text">{slide.title}</h1>
+          <p className="hero__tagline">{slide.tagline}</p>
+          <div className="hero__actions">
+            <a href="#library" className="btn btn-primary">Browse Library</a>
+            {isAdmin ? (
+              <Link to="/admin" className="btn btn-outline">⚡ Open Admin Panel</Link>
+            ) : (
+              <a href="#library" className="btn btn-outline">Start Reading</a>
+            )}
+          </div>
         </div>
+
+        {/* ── RIGHT: Girl Video & Photo Showcase ── */}
+        <div className="hero__right">
+          <div className="hero__showcase">
+            {SLIDES.map((s, i) => (
+              <div
+                key={`showcase-${i}`}
+                className={`hero__media-item${i === current ? " active" : ""}`}
+              >
+                {s.type === "video" ? (
+                  <video
+                    src={s.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="hero__media-video"
+                  />
+                ) : (
+                  <img
+                    src={s.src}
+                    alt="Maya Fitness"
+                    className="hero__media-img"
+                  />
+                )}
+              </div>
+            ))}
+
+            {/* Floating Live Badge */}
+            <div className="hero__floating-badge">
+              <div className="hero__badge-left">
+                <span className="hero__live-dot" />
+                <div>
+                  <div className="hero__badge-title">{slide.badgeTitle}</div>
+                  <div className="hero__badge-sub">{slide.badgeSub}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* Navigation Arrows */}

@@ -131,17 +131,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Video Poster mid-section ───────────────── */}
+      {/* ── Poster mid-section ───────────────── */}
       <section className="home__poster-strip">
-        <video
-          src="/videos/workout-bg2.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="home__poster-strip-video"
-          aria-hidden="true"
-        />
         <div className="home__poster-strip-overlay" />
         <div className="container home__poster-strip-content">
           <p className="script home__poster-strip-text">
