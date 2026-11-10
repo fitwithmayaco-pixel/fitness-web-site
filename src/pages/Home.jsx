@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import HeroBanner from "../components/HeroBanner";
 import BookCard from "../components/BookCard";
 import SearchBar from "../components/SearchBar";
+import DailyTimer from "../components/DailyTimer";
 import { getAllBooks } from "../utils/db";
 import { getAllProgress } from "../utils/db";
 import poster1 from "../assets/posters/poster1.jpg";
@@ -33,6 +34,11 @@ export default function Home() {
   return (
     <div className="home page-enter">
       <HeroBanner />
+
+      {/* ── 24-Hour Challenge Timer ──────────── */}
+      <div className="container" style={{ marginTop: "2rem" }}>
+        <DailyTimer />
+      </div>
 
       {/* ── Continue Reading ─────────────────── */}
       {continueReading.length > 0 && (

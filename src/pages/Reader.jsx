@@ -61,7 +61,7 @@ export default function Reader() {
         if (!b) { setError("Book not found."); return; }
         setBook(b);
 
-        pdfDoc = await loadPDF(b.pdfData);
+        pdfDoc = await loadPDF(b.pdfUrl || b.pdfData);
         setPdf(pdfDoc);
 
         const count = pdfDoc.numPages;
@@ -78,8 +78,19 @@ export default function Reader() {
         // Pre-render first few pages
         renderRange(pdfDoc, 1, Math.min(4, count));
       } catch (e) {
-        console.error(e);
-        setError("Failed to open book.");
+        console.error("Reader error:", e);
+        const msg = String(e?.message || e);
+        if (msg.includes("empty") || msg.includes("zero bytes") || msg.includes("InvalidPDFException")) {
+          setError(
+            "The PDF file could not be loaded because it is empty (0 bytes) or the upload was interrupted. Please re-upload or edit this book."
+          );
+        } else if (msg.includes("404") || msg.includes("Failed to fetch") || msg.includes("400")) {
+          setError(
+            "Could not load the PDF from storage (400/404). Please ensure the file was uploaded completely to Supabase Storage."
+          );
+        } else {
+          setError(e?.message || "Failed to open book.");
+        }
       }
     })();
     return () => { if (pdfDoc?._destroy) pdfDoc._destroy(); };
@@ -229,6 +240,9 @@ export default function Reader() {
           <span className="script">{book?.title}</span>
         </div>
         <div className="reader__topbar-actions">
+          <Link to={`/edit/${id}`} className="btn btn-ghost reader__edit-link" title="Edit Book">
+            ✏️ Edit
+          </Link>
           <button
             className={`reader__mode-btn${darkMode ? "" : " light-active"}`}
             onClick={() => setDarkMode((d) => !d)}

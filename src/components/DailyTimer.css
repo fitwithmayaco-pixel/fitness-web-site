@@ -1,0 +1,119 @@
+.daily-timer-card {
+  margin: 1.5rem auto 2.5rem;
+  max-width: 800px;
+  background: linear-gradient(135deg, rgba(255, 107, 156, 0.12), rgba(138, 79, 255, 0.08));
+  border: 1px solid rgba(255, 107, 156, 0.3);
+  border-radius: 18px;
+  padding: 1.4rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 25px rgba(255, 107, 156, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (max-width: 640px) {
+  .daily-timer-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.2rem;
+    gap: 1rem;
+  }
+}
+
+.daily-timer__info {
+  flex: 1;
+}
+
+.daily-timer__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255, 107, 156, 0.2);
+  border: 1px solid rgba(255, 107, 156, 0.4);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #ff94ba;
+  margin-bottom: 0.5rem;
+}
+
+.daily-timer__pulse {
+  width: 7px;
+  height: 7px;
+  background: #ff4d8d;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff4d8d;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.daily-timer__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.daily-timer__desc {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.daily-timer__clock {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.daily-timer__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(18, 12, 28, 0.85);
+  border: 1px solid rgba(255, 107, 156, 0.35);
+  border-radius: 12px;
+  padding: 0.5rem 0.8rem;
+  min-width: 60px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(255, 77, 141, 0.15);
+}
+
+.daily-timer__num {
+  font-family: monospace, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ff8cb3;
+  line-height: 1.1;
+  text-shadow: 0 0 12px rgba(255, 107, 156, 0.6);
+}
+
+.daily-timer__label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.daily-timer__sep {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff6b9c;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}

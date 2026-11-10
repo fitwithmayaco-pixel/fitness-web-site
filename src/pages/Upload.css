@@ -169,8 +169,27 @@
 .upload__cover-preview button:hover { color: var(--pink); }
 
 /* Status */
-.upload__error { color: #ff6b6b; font-size: 0.9rem; }
-.upload__success { color: #6bffb8; font-size: 0.9rem; }
+.upload__error {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.2);
+}
+.upload__success {
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  color: #86efac;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
 
 .upload__progress { display: flex; flex-direction: column; gap: 8px; }
 .upload__progress-track {

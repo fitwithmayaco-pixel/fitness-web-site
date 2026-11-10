@@ -6,6 +6,8 @@ import { generateCover, loadPDF } from "../utils/pdfUtils";
 import { uid, formatBytes, readFileAsArrayBuffer, readFileAsDataURL } from "../utils/helpers";
 import "./Upload.css";
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB (Supabase Free Tier upload limit)
+
 const INITIAL_FORM = {
   title: "", author: "", category: "Wellness", description: "", price: "",
 };
@@ -30,10 +32,24 @@ export default function Upload() {
     setDragging(false);
     const file = e.dataTransfer?.files[0] || e.target.files[0];
     if (!file) return;
-    if (file.type !== "application/pdf") {
-      setErrorMsg("Please drop a PDF file.");
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setErrorMsg("Please drop a valid PDF file.");
       return;
     }
+
+    if (file.size === 0) {
+      setErrorMsg("The selected file is empty (0 bytes). Please select a valid PDF.");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setErrorMsg(
+        `File is too large (${formatBytes(file.size)}). Supabase allows a maximum of 50 MB per file on the Free tier. Please compress your PDF before uploading.`
+      );
+      return;
+    }
+
     setPdfFile(file);
     setErrorMsg("");
     // Auto-fill title from filename
@@ -55,6 +71,11 @@ export default function Upload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!pdfFile) { setErrorMsg("Please select a PDF file."); return; }
+    if (pdfFile.size === 0) { setErrorMsg("The selected PDF file is empty (0 bytes)."); return; }
+    if (pdfFile.size > MAX_FILE_SIZE) {
+      setErrorMsg(`PDF size (${formatBytes(pdfFile.size)}) exceeds the 50 MB limit. Please compress it before uploading.`);
+      return;
+    }
     if (!form.title.trim()) { setErrorMsg("Please enter a title."); return; }
 
     try {
@@ -63,12 +84,15 @@ export default function Upload() {
 
       // Read PDF bytes
       const arrayBuffer = await readFileAsArrayBuffer(pdfFile);
+      if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+        throw new Error("InvalidPDFException: The PDF file is empty, i.e. its size is zero bytes.");
+      }
       setProgress(30);
 
       // Get page count
       const pdf = await loadPDF(arrayBuffer.slice(0));
       const pageCount = pdf.numPages;
-      pdf._destroy();   // safe cleanup (pdfjs-dist v4+ uses loadingTask.destroy)
+      if (pdf._destroy) pdf._destroy();
       setProgress(55);
 
       // Cover
@@ -91,7 +115,8 @@ export default function Upload() {
         cover,
         pageCount,
         fileSize: pdfFile.size,
-        pdfData: arrayBuffer,  // stored as ArrayBuffer in IndexedDB
+        pdfFile,
+        pdfData: arrayBuffer,
         createdAt: Date.now(),
       });
 
@@ -99,9 +124,23 @@ export default function Upload() {
       setStatus("done");
       setTimeout(() => navigate(`/read/${id}`), 1000);
     } catch (err) {
-      console.error(err);
+      console.error("Upload process error:", err);
       setStatus("error");
-      setErrorMsg("Failed to process PDF. Please try again.");
+
+      const rawMsg = err?.message || err?.error_description || String(err);
+      let friendlyMsg = rawMsg;
+
+      if (rawMsg.includes("exceeded the maximum allowed size") || rawMsg.includes("Payload Too Large")) {
+        friendlyMsg = `The PDF (${formatBytes(pdfFile?.size || 0)}) exceeds the maximum allowed size in Supabase Storage (50 MB limit). Please compress your PDF at ilovepdf.com or update your Supabase bucket limit.`;
+      } else if (rawMsg.includes("InvalidPDFException") || rawMsg.includes("zero bytes") || rawMsg.includes("empty")) {
+        friendlyMsg = "The PDF file is empty or corrupted (0 bytes). Please verify the PDF on your computer and try again.";
+      } else if (rawMsg.includes("Failed to fetch") || rawMsg.includes("NetworkError")) {
+        friendlyMsg = "Network error connecting to Supabase. Please verify your internet connection and .env configuration.";
+      } else if (rawMsg.includes("row-level security") || rawMsg.includes("policy")) {
+        friendlyMsg = "Supabase Permission Error: Please run the SQL migration script in your Supabase SQL Editor.";
+      }
+
+      setErrorMsg(friendlyMsg);
     }
   };
 

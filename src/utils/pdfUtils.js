@@ -10,12 +10,20 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 ).href;
 
 /**
- * Load a PDF from an ArrayBuffer.
+ * Load a PDF from an ArrayBuffer or a remote URL string.
  * Returns { pdf: PDFDocumentProxy, destroy: fn }
  * Call destroy() when done to free memory.
  */
-export async function loadPDF(arrayBuffer) {
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+export async function loadPDF(source) {
+  let param;
+  if (typeof source === "string") {
+    param = { url: source };
+  } else if (source instanceof ArrayBuffer || ArrayBuffer.isView(source)) {
+    param = { data: source };
+  } else {
+    param = source;
+  }
+  const loadingTask = pdfjsLib.getDocument(param);
   const pdf = await loadingTask.promise;
   // Attach a safe cleanup helper so callers don't need to track the task
   pdf._destroy = () => loadingTask.destroy().catch(() => {});
