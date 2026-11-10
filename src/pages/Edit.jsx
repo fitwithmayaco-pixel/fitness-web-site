@@ -18,6 +18,7 @@ export default function EditBook() {
   const [coverChanged, setCoverChanged] = useState(false);
   const [newPdfFile, setNewPdfFile] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | saving | done | error
+  const [isDeleting, setIsDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -128,11 +129,13 @@ export default function EditBook() {
 
   // ── Delete ──────────────────────────────────────────────────
   const handleDelete = async () => {
+    setIsDeleting(true);
     try {
       await deleteBook(id);
       navigate("/");
     } catch (err) {
       console.error(err);
+      setIsDeleting(false);
       setErrorMsg("Failed to delete book.");
     }
   };
@@ -147,7 +150,16 @@ export default function EditBook() {
     );
   }
   if (!book) {
-    return <div className="edit edit--loading"><div className="spinner large" /><p>Loading…</p></div>;
+    return (
+      <div className="edit edit--loading">
+        <div className="loading-box">
+          <div className="spinner large" />
+          <p style={{ color: "var(--white)", fontWeight: 500, fontSize: "1.05rem" }}>
+            Loading book details…
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -284,17 +296,29 @@ export default function EditBook() {
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={status === "saving" || status === "done"}
+                disabled={status === "saving" || status === "done" || isDeleting}
               >
-                {status === "saving" ? "Saving…" : "💾 Save Changes"}
+                {status === "saving" ? (
+                  <>
+                    <span className="spinner spinner--sm" />
+                    <span>Saving Changes…</span>
+                  </>
+                ) : status === "done" ? (
+                  "✓ Saved!"
+                ) : (
+                  "💾 Save Changes"
+                )}
               </button>
-              <Link to="/" className="btn btn-ghost">Cancel</Link>
+              <Link to="/" className="btn btn-ghost" style={{ pointerEvents: status === "saving" || isDeleting ? "none" : "auto" }}>
+                Cancel
+              </Link>
 
               {/* Delete */}
               <button
                 type="button"
                 className="btn edit__delete-btn"
                 onClick={() => setShowDeleteConfirm(true)}
+                disabled={status === "saving" || isDeleting}
               >
                 🗑 Delete Book
               </button>
@@ -304,15 +328,22 @@ export default function EditBook() {
 
         {/* ── Delete Confirm Dialog ── */}
         {showDeleteConfirm && (
-          <div className="edit__overlay" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="edit__overlay" onClick={() => !isDeleting && setShowDeleteConfirm(false)}>
             <div className="edit__dialog glass" onClick={(e) => e.stopPropagation()}>
               <h3>Delete <span className="script">"{book.title}"</span>?</h3>
               <p>This will permanently remove the book and all reading progress. This cannot be undone.</p>
               <div className="edit__dialog-actions">
-                <button className="btn edit__confirm-delete" onClick={handleDelete}>
-                  🗑 Yes, Delete
+                <button className="btn edit__confirm-delete" onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? (
+                    <>
+                      <span className="spinner spinner--sm" />
+                      <span>Deleting…</span>
+                    </>
+                  ) : (
+                    "🗑 Yes, Delete"
+                  )}
                 </button>
-                <button className="btn btn-ghost" onClick={() => setShowDeleteConfirm(false)}>
+                <button className="btn btn-ghost" onClick={() => setShowDeleteConfirm(false)} disabled={isDeleting}>
                   Cancel
                 </button>
               </div>

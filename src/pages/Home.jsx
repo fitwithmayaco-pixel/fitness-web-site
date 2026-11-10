@@ -14,10 +14,21 @@ export default function Home() {
   const [progress, setProgress] = useState({});
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAllBooks().then(setBooks);
-    getAllProgress().then(setProgress);
+    setLoading(true);
+    Promise.all([getAllBooks(), getAllProgress()])
+      .then(([b, p]) => {
+        setBooks(b || []);
+        setProgress(p || {});
+      })
+      .catch((err) => {
+        console.error("Failed to load books:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   // Filter books
@@ -76,8 +87,15 @@ export default function Home() {
             onCategory={setCategory}
           />
 
-          {/* Grid */}
-          {filtered.length > 0 ? (
+          {/* Grid / Loading / Empty */}
+          {loading ? (
+            <div className="loading-box glass" style={{ margin: "40px auto", maxWidth: "420px" }}>
+              <div className="spinner large" />
+              <p style={{ color: "var(--white)", fontWeight: 500, fontSize: "1.05rem" }}>
+                Loading your library…
+              </p>
+            </div>
+          ) : filtered.length > 0 ? (
             <div className="home__grid">
               {filtered.map((book) => (
                 <BookCard key={book.id} book={book} lastPage={progress[book.id]} />

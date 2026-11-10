@@ -295,9 +295,25 @@ export default function Upload() {
               className="btn btn-primary"
               disabled={status === "processing" || status === "done"}
             >
-              {status === "processing" ? "Processing…" : "📖 Add to Library"}
+              {status === "processing" ? (
+                <>
+                  <span className="spinner spinner--sm" />
+                  <span>Processing & Uploading ({progress}%)…</span>
+                </>
+              ) : status === "done" ? (
+                "✓ Added! Redirecting…"
+              ) : (
+                "📖 Add to Library"
+              )}
             </button>
-            <button type="button" className="btn btn-ghost" onClick={reset}>Reset</button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={reset}
+              disabled={status === "processing"}
+            >
+              Reset
+            </button>
           </div>
         </form>
       </div>
