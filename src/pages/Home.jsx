@@ -4,12 +4,13 @@ import HeroBanner from "../components/HeroBanner";
 import BookCard from "../components/BookCard";
 import SearchBar from "../components/SearchBar";
 import DailyTimer from "../components/DailyTimer";
-import { getAllBooks } from "../utils/db";
-import { getAllProgress } from "../utils/db";
-import poster1 from "../assets/posters/poster1.jpg";
+import { useAuth } from "../context/AuthContext";
+import { getAllBooks, getAllProgress } from "../utils/db";
+import mayaPurple from "../assets/posters/maya-gym-purple.jpg";
 import "./Home.css";
 
 export default function Home() {
+  const { isAdmin } = useAuth();
   const [books, setBooks] = useState([]);
   const [progress, setProgress] = useState({});
   const [query, setQuery] = useState("");
@@ -73,11 +74,13 @@ export default function Home() {
           <div className="home__library-header">
             <div>
               <h2 className="home__heading">
-                <span className="script">My</span> Library
+                <span className="script">Fitness</span> Library
               </h2>
-              <p className="home__sub">{books.length} book{books.length !== 1 ? "s" : ""} in your collection</p>
+              <p className="home__sub">{books.length} book{books.length !== 1 ? "s" : ""} in collection</p>
             </div>
-            <Link to="/upload" className="btn btn-primary">+ Upload Book</Link>
+            {isAdmin && (
+              <Link to="/upload" className="btn btn-primary">+ Upload Book</Link>
+            )}
           </div>
 
           <SearchBar
@@ -104,11 +107,17 @@ export default function Home() {
           ) : books.length === 0 ? (
             /* Empty state */
             <div className="home__empty">
-              <img src={poster1} alt="Upload your first book" className="home__empty-img" />
+              <img src={mayaPurple} alt="Maya Fitness Library" className="home__empty-img" />
               <div className="home__empty-text">
                 <h3 className="script">No books yet!</h3>
-                <p>Upload your first PDF e-book and start reading in style.</p>
-                <Link to="/upload" className="btn btn-primary">Upload Now</Link>
+                <p>Welcome to FitWithMaya! Get ready to explore workout programs and meal plans.</p>
+                {isAdmin ? (
+                  <Link to="/upload" className="btn btn-primary">Upload First E-Book</Link>
+                ) : (
+                  <p style={{ color: "var(--pink)", fontSize: "0.95rem" }}>
+                    Books will appear here once published by Maya.
+                  </p>
+                )}
               </div>
             </div>
           ) : (
@@ -122,12 +131,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Poster mid-section ───────────────── */}
+      {/* ── Video Poster mid-section ───────────────── */}
       <section className="home__poster-strip">
+        <video
+          src="/videos/workout-bg2.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="home__poster-strip-video"
+          aria-hidden="true"
+        />
         <div className="home__poster-strip-overlay" />
         <div className="container home__poster-strip-content">
-          <p className="script home__poster-strip-text">Train smart. Get stronger. Keep showing up. ♡</p>
-          <Link to="/upload" className="btn btn-primary">Start Your Collection</Link>
+          <p className="script home__poster-strip-text">
+            Train smart. Get stronger. Keep showing up. ♡
+          </p>
+          <a href="#library" className="btn btn-primary">Browse All Books</a>
         </div>
       </section>
     </div>

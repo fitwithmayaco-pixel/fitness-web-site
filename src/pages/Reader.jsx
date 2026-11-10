@@ -3,6 +3,7 @@ import {
 } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import HTMLFlipBook from "react-pageflip";
+import { useAuth } from "../context/AuthContext";
 import { getBook, saveProgress, getProgress } from "../utils/db";
 import { loadPDF, renderPageToDataURL } from "../utils/pdfUtils";
 import { clamp } from "../utils/helpers";
@@ -35,6 +36,7 @@ const FlipPage = forwardRef(function FlipPage({ src, pageNum, total, isBlank }, 
 export default function Reader() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const flipRef = useRef(null);
 
   const [book, setBook] = useState(null);
@@ -240,9 +242,11 @@ export default function Reader() {
           <span className="script">{book?.title}</span>
         </div>
         <div className="reader__topbar-actions">
-          <Link to={`/edit/${id}`} className="btn btn-ghost reader__edit-link" title="Edit Book">
-            ✏️ Edit
-          </Link>
+          {isAdmin && (
+            <Link to={`/edit/${id}`} className="btn btn-ghost reader__edit-link" title="Edit Book (Admin)">
+              ✏️ Edit
+            </Link>
+          )}
           <button
             className={`reader__mode-btn${darkMode ? "" : " light-active"}`}
             onClick={() => setDarkMode((d) => !d)}

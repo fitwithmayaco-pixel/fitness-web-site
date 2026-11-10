@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase, isSupabaseConfigured } from "../utils/supabase";
+import { checkIsAdmin } from "../config";
 
 const AuthContext = createContext(null);
 
@@ -33,27 +34,18 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // Google OAuth Login
-  const signInWithGoogle = async () => {
-    if (!isSupabaseConfigured() || !supabase) {
-      throw new Error("Supabase is not configured yet. Please add your credentials to .env file.");
-    }
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-    if (error) throw error;
-    return data;
-  };
+  // Check if current user is an admin
+  const isAdmin = Boolean(user && checkIsAdmin(user.email));
 
   // Email / Password Login
   const signInWithEmail = async (email, password) => {
     if (!isSupabaseConfigured() || !supabase) {
       throw new Error("Supabase is not configured yet. Please add your credentials to .env file.");
     }
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
     if (error) throw error;
     return data;
   };
@@ -64,10 +56,10 @@ export function AuthProvider({ children }) {
       throw new Error("Supabase is not configured yet. Please add your credentials to .env file.");
     }
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName.trim() },
       },
     });
     if (error) throw error;
@@ -89,8 +81,8 @@ export function AuthProvider({ children }) {
         user,
         session,
         loading,
+        isAdmin,
         isConfigured: isSupabaseConfigured(),
-        signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
         signOut,

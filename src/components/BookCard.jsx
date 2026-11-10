@@ -1,27 +1,31 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./BookCard.css";
 
 export default function BookCard({ book, lastPage }) {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const progress = lastPage && book.pageCount
     ? Math.round((lastPage / book.pageCount) * 100)
     : 0;
 
   return (
     <Link to={`/read/${book.id}`} className="book-card glass" title={book.title}>
-      {/* Edit button */}
-      <button
-        type="button"
-        className="book-card__edit-btn"
-        title="Edit Book Details & PDF"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          navigate(`/edit/${book.id}`);
-        }}
-      >
-        ✏️ Edit
-      </button>
+      {/* Edit button - Only visible to Admin */}
+      {isAdmin && (
+        <button
+          type="button"
+          className="book-card__edit-btn"
+          title="Edit Book Details & PDF (Admin Only)"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigate(`/edit/${book.id}`);
+          }}
+        >
+          ✏️ Edit
+        </button>
+      )}
 
       {/* Cover */}
       <div className="book-card__cover-wrap">

@@ -9,7 +9,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const loc = useLocation();
 
   useEffect(() => {
@@ -40,7 +40,9 @@ export default function Navbar() {
           {/* Desktop links */}
           <ul className="navbar__links">
             <li><Link to="/" className={loc.pathname === "/" ? "active" : ""}>Home</Link></li>
-            <li><Link to="/upload" className={loc.pathname === "/upload" ? "active" : ""}>Upload</Link></li>
+            {isAdmin && (
+              <li><Link to="/upload" className={loc.pathname === "/upload" ? "active" : ""}>Upload</Link></li>
+            )}
           </ul>
 
           {/* Auth Area & Actions */}
@@ -52,7 +54,12 @@ export default function Navbar() {
                 ) : (
                   <div className="navbar__avatar">{userName.charAt(0).toUpperCase()}</div>
                 )}
-                <span className="navbar__user-name" title={user.email}>{userName}</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span className="navbar__user-name" title={user.email}>{userName}</span>
+                    {isAdmin && <span className="navbar__admin-badge">👑 Admin</span>}
+                  </div>
+                </div>
                 <button className="navbar__signout-btn" onClick={signOut} title="Sign Out">
                   Sign Out
                 </button>
@@ -66,8 +73,10 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* CTA */}
-            <Link to="/upload" className="btn btn-primary navbar__cta">+ Add Book</Link>
+            {/* CTA - Only shown for Admin */}
+            {isAdmin && (
+              <Link to="/upload" className="btn btn-primary navbar__cta">+ Add Book</Link>
+            )}
           </div>
 
           {/* Hamburger */}
@@ -83,10 +92,13 @@ export default function Navbar() {
         {/* Mobile menu */}
         <div className={`navbar__mobile${menuOpen ? " open" : ""}`}>
           <Link to="/">Home</Link>
-          <Link to="/upload">Upload Books</Link>
+          {isAdmin && <Link to="/upload">Upload Books (Admin)</Link>}
           {user ? (
             <div style={{ padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ color: "#fff", fontSize: "0.9rem" }}>👤 {userName}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ color: "#fff", fontSize: "0.9rem" }}>👤 {userName}</span>
+                {isAdmin && <span className="navbar__admin-badge">👑 Admin</span>}
+              </div>
               <button
                 className="navbar__signout-btn"
                 onClick={() => { signOut(); setMenuOpen(false); }}

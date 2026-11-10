@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { CATEGORIES } from "../config";
+import { useAuth } from "../context/AuthContext";
+import AuthModal from "../components/AuthModal";
 import { saveBook } from "../utils/db";
 import { generateCover, loadPDF } from "../utils/pdfUtils";
 import { uid, formatBytes, readFileAsArrayBuffer, readFileAsDataURL } from "../utils/helpers";
@@ -14,6 +16,8 @@ const INITIAL_FORM = {
 
 export default function Upload() {
   const navigate = useNavigate();
+  const { user, isAdmin, loading: authLoading } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
   const [pdfFile, setPdfFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
@@ -153,6 +157,43 @@ export default function Upload() {
     setProgress(0);
     setErrorMsg("");
   };
+
+  // ── Access Control: Admin Only ─────────────────────
+  if (authLoading) {
+    return (
+      <div className="upload page-enter" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <div className="spinner large" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="upload page-enter">
+        <div className="container" style={{ maxWidth: "560px", margin: "60px auto" }}>
+          <div className="glass" style={{ padding: "48px 32px", textAlign: "center", borderRadius: "24px" }}>
+            <span style={{ fontSize: "3.5rem", display: "block", marginBottom: "1rem" }}>🔒</span>
+            <h2 className="script" style={{ fontSize: "2.2rem", marginBottom: "0.6rem", color: "var(--pink)" }}>
+              Admin Access Only
+            </h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "1.8rem", fontSize: "0.95rem", lineHeight: "1.6" }}>
+              Only the verified administrator can upload new e-books to the FitWithMaya library.
+              Please sign in with your authorized admin email.
+            </p>
+            <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
+              <button className="btn btn-primary" onClick={() => setAuthModalOpen(true)}>
+                🔑 Sign In as Admin
+              </button>
+              <Link to="/" className="btn btn-ghost">
+                ← Back to Library
+              </Link>
+            </div>
+          </div>
+        </div>
+        <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="upload page-enter">

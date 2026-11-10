@@ -36,3 +36,23 @@ export const CATEGORIES = [
   "Strength",
   "Wellness",
 ];
+
+// Admin Configuration
+// Set your admin email here or in .env as VITE_ADMIN_EMAIL
+export const ADMIN_CONFIG = {
+  emails: [
+    (import.meta.env.VITE_ADMIN_EMAIL || "").toLowerCase().trim(),
+    "admin@fitwithmaya.com",
+    "maya@fitwithmaya.com",
+    "abdulrafey12389@gmail.com",
+  ].filter(Boolean),
+};
+
+export function checkIsAdmin(email) {
+  if (!email) return false;
+  const lower = email.toLowerCase().trim();
+  const envAdmin = (import.meta.env.VITE_ADMIN_EMAIL || "").toLowerCase().trim();
+  const allowed = [...ADMIN_CONFIG.emails, envAdmin].filter(Boolean);
+  return allowed.includes(lower);
+}
+
