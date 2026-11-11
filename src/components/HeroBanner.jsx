@@ -2,37 +2,36 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { SITE } from "../config";
 import { useAuth } from "../context/AuthContext";
-import mayaPink from "../assets/posters/maya-gym-pink.jpg";
 import mayaPurple from "../assets/posters/maya-gym-purple.jpg";
 import "./HeroBanner.css";
 
 const SLIDES = [
   {
     type: "video",
-    src: "/videos/hero-slider-video.mp4",
+    src: "/videos/maya-workout1.mp4",
     title: SITE.name,
     tagline: "Stronger. Healthier. Happier. Transform your body and lifestyle with Maya's proven workout guides and nutrition plans ♡",
     eyebrow: "Live The Fitness Lifestyle ♡",
     badgeTitle: "Maya Fit • Live Trainer",
-    badgeSub: "🔥 Video Training & E-Books",
-  },
-  {
-    type: "image",
-    src: mayaPink,
-    title: "Train With Purpose.",
-    tagline: "Consistency creates champions. Access Maya's complete digital fitness collection anytime, anywhere.",
-    eyebrow: "FitWithMaya ♡",
-    badgeTitle: "Strength & Shred Program",
-    badgeSub: "✨ Real Workouts, Real Results",
+    badgeSub: "🔥 Video Routine 1",
   },
   {
     type: "video",
-    src: "/videos/workout-bg1.mp4",
+    src: "/videos/maya-workout2.mp4",
+    title: "Train With Purpose.",
+    tagline: "Consistency creates champions. Access Maya's complete digital fitness collection anytime, anywhere.",
+    eyebrow: "FitWithMaya ♡",
+    badgeTitle: "Strength & Conditioning",
+    badgeSub: "✨ Video Routine 2",
+  },
+  {
+    type: "video",
+    src: "/videos/maya-workout3.mp4",
     title: "Crush Your Goals.",
     tagline: "Follow structured workout regimens and progressive routines tailored to get you in peak shape.",
     eyebrow: "Daily Motivation ♡",
-    badgeTitle: "Daily Fitness Sessions",
-    badgeSub: "⚡ Keep Showing Up Every Day",
+    badgeTitle: "Peak Performance Regimen",
+    badgeSub: "⚡ Video Routine 3",
   },
   {
     type: "image",

@@ -195,23 +195,17 @@ export default function Admin() {
               Admin Access Only
             </h2>
             <p style={{ color: "var(--text-muted)", marginBottom: "1.8rem", fontSize: "0.95rem", lineHeight: "1.6" }}>
-              The Admin Panel is reserved for administrators only.
-              {user ? (
-                <>
-                  <br />Currently signed in as: <strong>{user.email}</strong> (Role: <span style={{ color: "#ff8fc7" }}>{userRole}</span>).
-                  <br />To become an admin, set your role to <code>'admin'</code> in the Supabase <strong>profiles</strong> table.
-                </>
-              ) : (
-                <> Please sign in with your authorized admin account to continue.</>
-              )}
+              This page is restricted to administrators only.
             </p>
             <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-              <button className="btn btn-primary" onClick={() => setAuthModalOpen(true)}>
-                🔑 {user ? "Switch Account" : "Sign In"}
-              </button>
-              <Link to="/" className="btn btn-ghost">
+              <Link to="/" className="btn btn-primary">
                 ← Back to Home
               </Link>
+              {!user && (
+                <button className="btn btn-ghost" onClick={() => setAuthModalOpen(true)}>
+                  Sign In
+                </button>
+              )}
             </div>
           </div>
         </div>

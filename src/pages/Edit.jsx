@@ -163,15 +163,17 @@ export default function EditBook() {
               Admin Access Only
             </h2>
             <p style={{ color: "var(--text-muted)", marginBottom: "1.8rem", fontSize: "0.95rem", lineHeight: "1.6" }}>
-              Only verified administrators can edit or delete books in the FitWithMaya library.
+              This page is restricted to administrators only.
             </p>
             <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-              <button className="btn btn-primary" onClick={() => setAuthModalOpen(true)}>
-                🔑 Sign In as Admin
-              </button>
-              <Link to="/" className="btn btn-ghost">
+              <Link to="/" className="btn btn-primary">
                 ← Back to Library
               </Link>
+              {!isAdmin && (
+                <button className="btn btn-ghost" onClick={() => setAuthModalOpen(true)}>
+                  Sign In
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
 import { SITE, SOCIAL } from "../config";
+import { useAuth } from "../context/AuthContext";
 import "./Footer.css";
 
 export default function Footer() {
+  const { isAdmin } = useAuth();
+
   return (
     <footer className="footer">
       {/* Banner strip */}
@@ -12,7 +15,11 @@ export default function Footer() {
             <p className="footer__banner-script script">Keep showing up.</p>
             <p className="footer__banner-sub">Your journey starts with one page.</p>
           </div>
-          <Link to="/upload" className="btn btn-primary">Upload a Book</Link>
+          {isAdmin ? (
+            <Link to="/admin" className="btn btn-primary">⚡ Admin Panel</Link>
+          ) : (
+            <a href="#library" className="btn btn-primary">Explore Library</a>
+          )}
         </div>
       </div>
 
@@ -27,7 +34,8 @@ export default function Footer() {
         <div className="footer__links">
           <h4>Navigation</h4>
           <Link to="/">Home</Link>
-          <Link to="/upload">Upload Books</Link>
+          <a href="#library">Fitness Library</a>
+          {isAdmin && <Link to="/admin">⚡ Admin Panel</Link>}
         </div>
 
         <div className="footer__social">
