@@ -7,6 +7,7 @@ import { CATEGORIES } from "../config";
 import { uid, formatBytes, readFileAsArrayBuffer, readFileAsDataURL } from "../utils/helpers";
 import { loadPDF, generateCover } from "../utils/pdfUtils";
 import "./Admin.css";
+import "./Upload.css";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB (Supabase Free Tier)
 
@@ -431,7 +432,7 @@ export default function Admin() {
               {pdfFile ? (
                 <div className="upload__file-info">
                   <span className="upload__file-icon">📄</span>
-                  <div>
+                  <div className="upload__file-details">
                     <p className="upload__file-name">{pdfFile.name}</p>
                     <p className="upload__file-size">{formatBytes(pdfFile.size)}</p>
                   </div>
@@ -524,7 +525,7 @@ export default function Admin() {
                   {coverPreview ? (
                     <div className="upload__cover-preview">
                       <img src={coverPreview} alt="Cover preview" />
-                      <button type="button" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>✕ Remove</button>
+                      <button type="button" className="upload__cover-remove-btn" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>✕ Remove</button>
                     </div>
                   ) : (
                     <label className="upload__cover-btn btn btn-ghost">

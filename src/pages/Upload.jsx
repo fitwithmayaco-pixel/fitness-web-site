@@ -177,16 +177,17 @@ export default function Upload() {
               Admin Access Only
             </h2>
             <p style={{ color: "var(--text-muted)", marginBottom: "1.8rem", fontSize: "0.95rem", lineHeight: "1.6" }}>
-              Only the verified administrator can upload new e-books to the FitWithMaya library.
-              Please sign in with your authorized admin email.
+              This page is restricted to administrators only.
             </p>
             <div style={{ display: "flex", gap: "14px", justifyContent: "center", flexWrap: "wrap" }}>
-              <button className="btn btn-primary" onClick={() => setAuthModalOpen(true)}>
-                🔑 Sign In as Admin
-              </button>
-              <Link to="/" className="btn btn-ghost">
+              <Link to="/" className="btn btn-primary">
                 ← Back to Library
               </Link>
+              {!user && (
+                <button className="btn btn-ghost" onClick={() => setAuthModalOpen(true)}>
+                  Sign In
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -199,10 +200,15 @@ export default function Upload() {
     <div className="upload page-enter">
       <div className="container upload__container">
         <div className="upload__header">
-          <h1 className="upload__title">
-            <span className="script">Upload</span> Your E-Book
-          </h1>
-          <p className="upload__sub">Add a PDF to your personal fitness library. It stays in your browser — no server needed.</p>
+          <div>
+            <h1 className="upload__title">
+              <span className="script">Upload</span> New E-Book
+            </h1>
+            <p className="upload__sub">Add a new workout guide or fitness PDF to the FitWithMaya library.</p>
+          </div>
+          <Link to="/admin" className="btn btn-ghost" style={{ alignSelf: "center" }}>
+            ⚡ Admin Panel
+          </Link>
         </div>
 
         <form className="upload__form glass" onSubmit={handleSubmit}>
@@ -224,7 +230,7 @@ export default function Upload() {
             {pdfFile ? (
               <div className="upload__file-info">
                 <span className="upload__file-icon">📄</span>
-                <div>
+                <div className="upload__file-details">
                   <p className="upload__file-name">{pdfFile.name}</p>
                   <p className="upload__file-size">{formatBytes(pdfFile.size)}</p>
                 </div>
@@ -234,7 +240,7 @@ export default function Upload() {
               <>
                 <div className="upload__dropzone-icon">📚</div>
                 <p className="upload__dropzone-title">Drag & drop your PDF here</p>
-                <p className="upload__dropzone-sub">or click to browse — large files (50MB+) are OK</p>
+                <p className="upload__dropzone-sub">or click to browse — large files (up to 50 MB) supported</p>
               </>
             )}
           </div>
@@ -300,7 +306,7 @@ export default function Upload() {
                 {coverPreview ? (
                   <div className="upload__cover-preview">
                     <img src={coverPreview} alt="Cover preview" />
-                    <button type="button" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>✕ Remove</button>
+                    <button type="button" className="upload__cover-remove-btn" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>✕ Remove</button>
                   </div>
                 ) : (
                   <label className="upload__cover-btn btn btn-ghost">

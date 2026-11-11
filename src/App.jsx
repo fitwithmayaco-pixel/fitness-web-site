@@ -1,10 +1,11 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Reader from "./pages/Reader";
 import EditBook from "./pages/Edit";
 import Admin from "./pages/Admin";
+import Upload from "./pages/Upload";
 import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
@@ -16,7 +17,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/upload" element={<Navigate to="/admin" replace />} />
+            <Route path="/upload" element={<Upload />} />
             <Route path="/read/:id" element={<Reader />} />
             <Route path="/edit/:id" element={<EditBook />} />
           </Routes>
