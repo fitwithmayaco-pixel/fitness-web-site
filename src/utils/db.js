@@ -26,17 +26,22 @@ async function getCurrentUserId() {
 /** Save a new book record (Cloud Supabase or local IndexedDB). */
 export async function saveBook(book) {
   if (isSupabaseConfigured() && supabase) {
-    let pdfUrl = book.pdfUrl || "";
     let coverUrl = book.cover || "";
+    const productLink = book.link || book.pdfUrl || "";
+    let pdfUrl = productLink;
 
-    // 1. Upload PDF file/buffer to Supabase Storage
+    // 1. Upload PDF file/buffer to Supabase Storage if provided (backward compatibility)
     if (book.pdfFile || book.pdfData) {
-      const pdfPayload = book.pdfFile || new Blob([book.pdfData], { type: "application/pdf" });
-      const pdfPath = `pdfs/${book.id}.pdf`;
-      pdfUrl = await uploadToStorage("ebooks", pdfPath, pdfPayload, "application/pdf");
+      try {
+        const pdfPayload = book.pdfFile || new Blob([book.pdfData], { type: "application/pdf" });
+        const pdfPath = `pdfs/${book.id}.pdf`;
+        pdfUrl = await uploadToStorage("ebooks", pdfPath, pdfPayload, "application/pdf");
+      } catch (err) {
+        console.warn("Could not upload PDF to storage:", err);
+      }
     }
 
-    // 2. Upload cover if it's a dataURL / Blob
+    // 2. Upload cover if it's a dataURL / Blob / File
     if (coverUrl && coverUrl.startsWith("data:")) {
       try {
         const coverBlob = dataURLtoBlob(coverUrl);
@@ -45,6 +50,14 @@ export async function saveBook(book) {
       } catch (err) {
         console.warn("Could not upload cover to storage, using fallback:", err);
       }
+    } else if (book.coverFile) {
+      try {
+        const ext = book.coverFile.name?.split(".").pop() || "png";
+        const coverPath = `covers/${book.id}.${ext}`;
+        coverUrl = await uploadToStorage("ebooks", coverPath, book.coverFile, book.coverFile.type || "image/png");
+      } catch (err) {
+        console.warn("Could not upload cover file to storage:", err);
+      }
     }
 
     const userId = await getCurrentUserId();
@@ -52,12 +65,12 @@ export async function saveBook(book) {
     const bookRow = {
       id: book.id,
       title: book.title,
-      author: book.author || "Unknown Author",
+      author: book.author || "Maya Fit",
       category: book.category || "Wellness",
       description: book.description || "",
       price: book.price ? String(book.price) : "",
       cover_url: coverUrl,
-      pdf_url: pdfUrl,
+      pdf_url: pdfUrl || productLink, // Keeps NOT NULL happy in existing Supabase tables
       page_count: book.pageCount || 0,
       file_size: book.fileSize || 0,
       user_id: userId,
@@ -73,7 +86,7 @@ export async function saveBook(book) {
 
     // Cache locally
     const formatted = mapBookRow(data);
-    await booksStore.setItem(book.id, { ...formatted, pdfData: pdfUrl });
+    await booksStore.setItem(book.id, { ...formatted, link: productLink });
     return formatted;
   }
 
@@ -82,7 +95,7 @@ export async function saveBook(book) {
   return book;
 }
 
-/** Update metadata (and optionally cover/PDF) of an existing book. */
+/** Update metadata (and optionally cover/link/PDF) of an existing book. */
 export async function updateBook(id, fields) {
   if (isSupabaseConfigured() && supabase) {
     const updateData = { updated_at: new Date().toISOString() };
@@ -93,6 +106,11 @@ export async function updateBook(id, fields) {
     if (fields.description !== undefined) updateData.description = fields.description;
     if (fields.price !== undefined) updateData.price = String(fields.price);
 
+    // If new link is provided, update pdf_url
+    if (fields.link !== undefined) {
+      updateData.pdf_url = fields.link;
+    }
+
     // If new cover provided
     if (fields.cover && fields.cover.startsWith("data:")) {
       try {
@@ -101,6 +119,14 @@ export async function updateBook(id, fields) {
         updateData.cover_url = await uploadToStorage("ebooks", coverPath, coverBlob, "image/png");
       } catch (err) {
         console.warn("Failed to upload updated cover:", err);
+      }
+    } else if (fields.coverFile) {
+      try {
+        const ext = fields.coverFile.name?.split(".").pop() || "png";
+        const coverPath = `covers/${id}_${Date.now()}.${ext}`;
+        updateData.cover_url = await uploadToStorage("ebooks", coverPath, fields.coverFile, fields.coverFile.type || "image/png");
+      } catch (err) {
+        console.warn("Failed to upload updated cover file:", err);
       }
     } else if (fields.cover) {
       updateData.cover_url = fields.cover;
@@ -124,7 +150,7 @@ export async function updateBook(id, fields) {
 
     if (error) throw error;
     const formatted = mapBookRow(data);
-    await booksStore.setItem(id, { ...formatted, pdfData: formatted.pdfUrl });
+    await booksStore.setItem(id, { ...formatted, link: fields.link || formatted.link });
     return formatted;
   }
 
@@ -286,6 +312,7 @@ export async function getAllProgress() {
 
 function mapBookRow(row) {
   if (!row) return null;
+  const link = row.link || (row.pdf_url && (row.pdf_url.startsWith("http://") || row.pdf_url.startsWith("https://")) ? row.pdf_url : "");
   return {
     id: row.id,
     title: row.title,
@@ -294,6 +321,7 @@ function mapBookRow(row) {
     description: row.description,
     price: row.price,
     cover: row.cover_url,
+    link: link,
     pdfUrl: row.pdf_url,
     pdfData: row.pdf_url, // For reader compatibility
     pageCount: row.page_count,

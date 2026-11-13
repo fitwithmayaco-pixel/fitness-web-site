@@ -24,13 +24,18 @@ CREATE TABLE IF NOT EXISTS public.books (
   description TEXT DEFAULT '',
   price TEXT DEFAULT '',
   cover_url TEXT DEFAULT '',
-  pdf_url TEXT NOT NULL,
+  link TEXT DEFAULT '',
+  pdf_url TEXT DEFAULT '',
   page_count INTEGER DEFAULT 0,
   file_size BIGINT DEFAULT 0,
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure 'link' column exists and 'pdf_url' is nullable if migrating existing table
+ALTER TABLE public.books ADD COLUMN IF NOT EXISTS link TEXT DEFAULT '';
+ALTER TABLE public.books ALTER COLUMN pdf_url DROP NOT NULL;
 
 -- 3. Create 'reading_progress' table
 CREATE TABLE IF NOT EXISTS public.reading_progress (

@@ -9,10 +9,15 @@ import { loadPDF, generateCover } from "../utils/pdfUtils";
 import "./Admin.css";
 import "./Upload.css";
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB (Supabase Free Tier)
+const DEFAULT_GUMROAD_LINK = "https://mayafit.gumroad.com/l/uylist?_gl=1*1i5m33n*_ga*NzIyNTUyMDk3LjE3OTQzMDIzNjk.*_ga_6LJN6D94N6*czE3OTQ1NzIyNzckbzYkZzAkdDE3OTQ1NzIyODAkajU3JGwwJGgw";
 
 const INITIAL_FORM = {
-  title: "", author: "", category: "Wellness", description: "", price: "",
+  title: "",
+  author: "Maya Fit",
+  category: "Workout Guides",
+  description: "",
+  price: "",
+  link: DEFAULT_GUMROAD_LINK,
 };
 
 export default function Admin() {
@@ -25,11 +30,10 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [deletingId, setDeletingId] = useState(null);
 
-  // Upload Form states
+  // Upload Form states (Thumbnail + Link)
   const [form, setForm] = useState(INITIAL_FORM);
-  const [pdfFile, setPdfFile] = useState(null);
-  const [coverFile, setCoverFile] = useState(null);
-  const [coverPreview, setCoverPreview] = useState(null);
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -71,109 +75,85 @@ export default function Admin() {
     }
   };
 
-  // Upload helpers
+  // Upload helpers (Thumbnail Image + Gumroad Link)
   const setField = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const onDrop = useCallback((e) => {
+  const onThumbnailDrop = useCallback(async (e) => {
     e.preventDefault();
     setDragging(false);
     const file = e.dataTransfer?.files[0] || e.target.files[0];
     if (!file) return;
 
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      setUploadError("Please drop a valid PDF file.");
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please drop or select a valid image file (PNG, JPG, WEBP).");
       return;
     }
 
-    if (file.size === 0) {
-      setUploadError("The selected file is empty (0 bytes).");
+    if (file.size > 20 * 1024 * 1024) {
+      setUploadError(`Image size (${formatBytes(file.size)}) is too large. Max allowed is 20 MB.`);
       return;
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      setUploadError(`File is too large (${formatBytes(file.size)}). Max allowed is 50 MB.`);
-      return;
-    }
-
-    setPdfFile(file);
+    setThumbnailFile(file);
     setUploadError("");
+    const dataUrl = await readFileAsDataURL(file);
+    setThumbnailPreview(dataUrl);
+
     if (!form.title) {
-      const name = file.name.replace(/\.pdf$/i, "").replace(/[_-]/g, " ");
-      setForm((f) => ({ ...f, title: name }));
+      const name = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+      setForm((f) => ({ ...f, title: name.charAt(0).toUpperCase() + name.slice(1) }));
     }
   }, [form.title]);
 
-  const onCoverChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setCoverFile(file);
-    const dataURL = await readFileAsDataURL(file);
-    setCoverPreview(dataURL);
-  };
-
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
-    if (!pdfFile) { setUploadError("Please select a PDF file."); return; }
     if (!form.title.trim()) { setUploadError("Please enter a title."); return; }
+    if (!form.link.trim()) { setUploadError("Please enter the Gumroad or product link."); return; }
+    if (!thumbnailPreview && !thumbnailFile) {
+      setUploadError("Please select or drop a thumbnail image for this e-book.");
+      return;
+    }
 
     try {
       setUploadStatus("processing");
-      setUploadProgress(10);
+      setUploadProgress(25);
       setUploadError("");
       setUploadSuccess("");
 
-      const arrayBuffer = await readFileAsArrayBuffer(pdfFile);
-      setUploadProgress(30);
-
-      const pdf = await loadPDF(arrayBuffer.slice(0));
-      const pageCount = pdf.numPages;
-      if (pdf._destroy) pdf._destroy();
-      setUploadProgress(50);
-
-      let cover = coverPreview;
-      if (!cover) {
-        setUploadProgress(65);
-        cover = await generateCover(arrayBuffer.slice(0), 0.5);
-      }
-      setUploadProgress(80);
-
       const id = uid();
+      setUploadProgress(60);
+
       await saveBook({
         id,
         title: form.title.trim(),
-        author: form.author.trim(),
-        category: form.category,
+        author: form.author.trim() || "Maya Fit",
+        category: form.category || "Wellness",
         description: form.description.trim(),
         price: form.price.trim(),
-        cover,
-        pageCount,
-        fileSize: pdfFile.size,
-        pdfFile,
-        pdfData: arrayBuffer,
+        link: form.link.trim(),
+        cover: thumbnailPreview,
+        coverFile: thumbnailFile,
         createdAt: Date.now(),
       });
 
       setUploadProgress(100);
       setUploadStatus("done");
-      setUploadSuccess(`🎉 Book "${form.title}" successfully added to the cloud!`);
+      setUploadSuccess(`🎉 E-Book "${form.title}" successfully published!`);
 
       // Refresh books list
       loadAllBooks();
 
-      // Reset form
-      setForm(INITIAL_FORM);
-      setPdfFile(null);
-      setCoverFile(null);
-      setCoverPreview(null);
       setTimeout(() => {
+        setForm(INITIAL_FORM);
+        setThumbnailFile(null);
+        setThumbnailPreview(null);
         setUploadStatus("idle");
         setActiveTab("books");
-      }, 1800);
+      }, 1200);
     } catch (err) {
       console.error(err);
       setUploadStatus("error");
-      const msg = err?.message || String(err);
-      setUploadError(msg.includes("exceeded the maximum") ? "PDF size exceeds the 50 MB Supabase storage limit." : msg);
+      setUploadError(err?.message || "Failed to save e-book. Please try again.");
     }
   };
 
@@ -302,7 +282,7 @@ export default function Admin() {
             className={`admin__tab ${activeTab === "upload" ? "active" : ""}`}
             onClick={() => setActiveTab("upload")}
           >
-            ➕ Upload New PDF
+            ➕ Add New E-Book
           </button>
         </div>
 
@@ -327,7 +307,7 @@ export default function Admin() {
               </div>
             ) : filteredBooks.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--text-muted)" }}>
-                {books.length === 0 ? "No books uploaded yet. Click '+ Upload New PDF' to add one!" : "No books match your search filter."}
+                {books.length === 0 ? "No books uploaded yet. Click '+ Add New E-Book' to add one!" : "No books match your search filter."}
               </div>
             ) : (
               <div className="admin__table-wrap">
@@ -337,7 +317,7 @@ export default function Admin() {
                       <th>Book</th>
                       <th>Category</th>
                       <th>Price</th>
-                      <th>Pages & Size</th>
+                      <th>Link / Product</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -368,17 +348,39 @@ export default function Admin() {
                           </strong>
                         </td>
                         <td>
-                          <span style={{ display: "block", fontSize: "0.85rem" }}>📄 {book.pageCount} pages</span>
-                          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                            📁 {formatBytes(book.fileSize || 0)}
-                          </span>
+                          {book.link ? (
+                            <a
+                              href={book.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: "var(--pink)", fontSize: "0.85rem", textDecoration: "underline" }}
+                            >
+                              🔗 Gumroad Link
+                            </a>
+                          ) : (
+                            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                              {book.pageCount ? `📄 ${book.pageCount} pages` : "No link"}
+                            </span>
+                          )}
                         </td>
                         <td>
                           <div className="admin__actions-cell">
-                            <Link to={`/read/${book.id}`} className="admin__action-btn admin__action-btn--read" title="Open in 3D Reader">
-                              👁 Read
-                            </Link>
-                            <Link to={`/edit/${book.id}`} className="admin__action-btn admin__action-btn--edit" title="Edit Metadata or PDF">
+                            {book.link ? (
+                              <a
+                                href={book.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="admin__action-btn admin__action-btn--read"
+                                title="Open Gumroad Link"
+                              >
+                                🔗 Visit
+                              </a>
+                            ) : (
+                              <Link to={`/read/${book.id}`} className="admin__action-btn admin__action-btn--read" title="Open in 3D Reader">
+                                👁 Read
+                              </Link>
+                            )}
+                            <Link to={`/edit/${book.id}`} className="admin__action-btn admin__action-btn--edit" title="Edit Metadata or Link">
                               ✏️ Edit
                             </Link>
                             <button
@@ -407,54 +409,86 @@ export default function Admin() {
             <div style={{ marginBottom: "10px" }}>
               <h3 style={{ fontSize: "1.3rem", fontWeight: 700 }}>Upload New E-Book (Admin)</h3>
               <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                The PDF file and cover will be saved directly into Supabase Cloud Storage.
+                Add your cover thumbnail and Gumroad checkout link. Users will be redirected directly to your link.
               </p>
             </div>
 
             {uploadError && <div className="upload__error">⚠️ {uploadError}</div>}
             {uploadSuccess && <div className="upload__success">{uploadSuccess}</div>}
 
-            {/* Drop Zone */}
+            {/* Drop Zone (Thumbnail) */}
             <div
-              className={`upload__dropzone${pdfFile ? " has-file" : ""}${dragging ? " dragging" : ""}`}
+              className={`upload__dropzone${thumbnailPreview ? " has-file" : ""}${dragging ? " dragging" : ""}`}
               onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
               onDragLeave={() => setDragging(false)}
-              onDrop={onDrop}
-              onClick={() => !pdfFile && document.getElementById("admin-pdf-input").click()}
+              onDrop={onThumbnailDrop}
+              onClick={() => !thumbnailPreview && document.getElementById("admin-thumb-input").click()}
             >
               <input
-                id="admin-pdf-input"
+                id="admin-thumb-input"
                 type="file"
-                accept="application/pdf"
+                accept="image/*"
                 hidden
-                onChange={onDrop}
+                onChange={onThumbnailDrop}
               />
-              {pdfFile ? (
+              {thumbnailPreview ? (
                 <div className="upload__file-info">
-                  <span className="upload__file-icon">📄</span>
+                  <img
+                    src={thumbnailPreview}
+                    alt="Thumbnail preview"
+                    style={{
+                      width: "60px",
+                      height: "80px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                      border: "1px solid rgba(255,107,156,0.4)",
+                      flexShrink: 0,
+                    }}
+                  />
                   <div className="upload__file-details">
-                    <p className="upload__file-name">{pdfFile.name}</p>
-                    <p className="upload__file-size">{formatBytes(pdfFile.size)}</p>
+                    <p className="upload__file-name">{thumbnailFile?.name || "Thumbnail Image"}</p>
+                    <p className="upload__file-size">{thumbnailFile ? formatBytes(thumbnailFile.size) : "Ready to upload"}</p>
                   </div>
                   <button
                     type="button"
                     className="upload__file-remove"
-                    onClick={(e) => { e.stopPropagation(); setPdfFile(null); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setThumbnailFile(null);
+                      setThumbnailPreview(null);
+                    }}
+                    title="Remove image"
                   >
                     ✕
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className="upload__dropzone-icon">📚</div>
-                  <p className="upload__dropzone-title">Drag & drop your PDF file here</p>
-                  <p className="upload__dropzone-sub">or click to browse from your computer (Up to 50 MB)</p>
+                  <div className="upload__dropzone-icon">🖼️</div>
+                  <p className="upload__dropzone-title">Drag & drop your Thumbnail image here</p>
+                  <p className="upload__dropzone-sub">or click to browse from your computer (PNG, JPG, WEBP)</p>
                 </>
               )}
             </div>
 
             {/* Metadata Fields */}
             <div className="upload__fields">
+              <div className="upload__field upload__field--full">
+                <label>Product / Gumroad Link *</label>
+                <div className="upload__price-wrap">
+                  <span className="upload__price-symbol">🔗</span>
+                  <input
+                    type="url"
+                    value={form.link}
+                    onChange={setField("link")}
+                    placeholder="https://mayafit.gumroad.com/l/uylist"
+                    className="upload__price-input"
+                    disabled={uploadStatus === "processing"}
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="upload__field">
                 <label>Title *</label>
                 <input
@@ -514,27 +548,9 @@ export default function Admin() {
                   value={form.description}
                   onChange={setField("description")}
                   rows={3}
-                  placeholder="Short description of this book…"
+                  placeholder="Short description of this e-book / guide…"
                   disabled={uploadStatus === "processing"}
                 />
-              </div>
-
-              <div className="upload__field upload__field--cover">
-                <label>Custom Cover (Optional)</label>
-                <div className="upload__cover-wrap">
-                  {coverPreview ? (
-                    <div className="upload__cover-preview">
-                      <img src={coverPreview} alt="Cover preview" />
-                      <button type="button" className="upload__cover-remove-btn" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>✕ Remove</button>
-                    </div>
-                  ) : (
-                    <label className="upload__cover-btn btn btn-ghost">
-                      📷 Choose Cover Image
-                      <input type="file" accept="image/*" hidden onChange={onCoverChange} />
-                    </label>
-                  )}
-                  <p className="upload__cover-hint">Leave blank to automatically extract page 1 from the PDF as cover</p>
-                </div>
               </div>
             </div>
 
@@ -548,10 +564,10 @@ export default function Admin() {
                 {uploadStatus === "processing" ? (
                   <>
                     <span className="spinner spinner--sm" />
-                    <span>Processing & Uploading ({uploadProgress}%)…</span>
+                    <span>Publishing ({uploadProgress}%)…</span>
                   </>
                 ) : (
-                  "📖 Publish Book to Cloud"
+                  "✨ Publish to Store"
                 )}
               </button>
               <button
@@ -559,8 +575,8 @@ export default function Admin() {
                 className="btn btn-ghost"
                 onClick={() => {
                   setForm(INITIAL_FORM);
-                  setPdfFile(null);
-                  setCoverPreview(null);
+                  setThumbnailFile(null);
+                  setThumbnailPreview(null);
                   setUploadError("");
                 }}
                 disabled={uploadStatus === "processing"}

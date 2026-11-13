@@ -17,7 +17,7 @@ export default function EditBook() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const [book, setBook] = useState(null);
-  const [form, setForm] = useState({ title: "", author: "", category: "", description: "", price: "" });
+  const [form, setForm] = useState({ title: "", author: "", category: "", description: "", price: "", link: "" });
   const [coverPreview, setCoverPreview] = useState(null);
   const [coverChanged, setCoverChanged] = useState(false);
   const [newPdfFile, setNewPdfFile] = useState(null);
@@ -37,6 +37,7 @@ export default function EditBook() {
         category: b.category || "Wellness",
         description: b.description || "",
         price: b.price || "",
+        link: b.link || (b.pdfUrl?.startsWith("http") ? b.pdfUrl : ""),
       });
       setCoverPreview(b.cover || null);
     });
@@ -91,6 +92,7 @@ export default function EditBook() {
         category: form.category,
         description: form.description.trim(),
         price: form.price.trim(),
+        link: form.link.trim(),
         ...(coverChanged ? { cover: coverPreview } : {}),
       };
 
@@ -262,14 +264,39 @@ export default function EditBook() {
               </div>
             </div>
 
-            {/* Open in reader */}
-            <Link to={`/read/${id}`} className="btn btn-primary edit__read-btn">📖 Open Reader</Link>
+            {/* Open in reader or Gumroad */}
+            {book?.link ? (
+              <a
+                href={book.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary edit__read-btn"
+              >
+                🔗 Visit Gumroad
+              </a>
+            ) : book?.pdfUrl ? (
+              <Link to={`/read/${id}`} className="btn btn-primary edit__read-btn">📖 Open Reader</Link>
+            ) : null}
           </div>
 
           {/* ── Form ── */}
           <form className="edit__form glass" onSubmit={handleSave}>
 
             <div className="edit__fields">
+
+              <div className="edit__field edit__field--full">
+                <label>Product / Gumroad Link</label>
+                <div className="edit__price-wrap">
+                  <span className="edit__price-symbol">🔗</span>
+                  <input
+                    type="url"
+                    value={form.link}
+                    onChange={setField("link")}
+                    placeholder="https://mayafit.gumroad.com/l/..."
+                    className="edit__price-input"
+                  />
+                </div>
+              </div>
 
               <div className="edit__field edit__field--full">
                 <label>Title *</label>
